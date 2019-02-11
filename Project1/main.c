@@ -14,8 +14,8 @@ int main(){
 	GPIOB_MODER |= 1<<(2*3); //PB3 output
 	while(1){
 		GPIOB_BSRR |= LED_ON; //Turn on LED
-		for(i=0; i<100000000; i++);
+		for(i=0; i<100000; i++);
 		GPIOB_BSRR |= LED_OFF; //Turn off LED
-		for(i=0; i<100000000; i++);
+		for(i=0; i<100000; i++);
 	}
 }
