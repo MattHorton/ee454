@@ -7,15 +7,15 @@
 #define LED_OFF (1 << (3+16))
 
 int main(){
-int i;
+	int i;
 
-RCC_AHB2ENR |= (1 << 1); //Bit 1 is GPIOB clock enable bit
-GPIOB_MODER &= ~(3<<(2*3)); //clear PB3
-GPIOB_MODER |= 1<<(2*3); //PB3 output
-while(1){
-GPIOB_BSRR |= LED_ON; //Turn on LED
-for(i=0; i<100000000; i++);
-GPIOB_BSRR |= LED_OFF; //Turn off LED
-for(i=0; i<100000000; i++);
-}
+	RCC_AHB2ENR |= (1 << 1); //Bit 1 is GPIOB clock enable bit
+	GPIOB_MODER &= ~(3<<(2*3)); //clear PB3
+	GPIOB_MODER |= 1<<(2*3); //PB3 output
+	while(1){
+		GPIOB_BSRR |= LED_ON; //Turn on LED
+		for(i=0; i<100000000; i++);
+		GPIOB_BSRR |= LED_OFF; //Turn off LED
+		for(i=0; i<100000000; i++);
+	}
 }
