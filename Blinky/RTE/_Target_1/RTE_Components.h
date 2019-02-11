@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'Project1' 
+ * Project: 'Blinky' 
  * Target:  'Target 1' 
  */
 
