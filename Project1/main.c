@@ -66,6 +66,8 @@ typedef struct {
 	__IO uint32_t CALFACT; //calibration factors
 } ADC_Typedef;
 
+#define ADC ((ADC_Typedef *) 0x50040000)
+
 void USART_Init(USART_Typedef * USARTx);
 
 
@@ -91,7 +93,7 @@ int main(){
 	ADC_CFGR|=(0 << 4);			  //set resolution to 12 bits
 	ADC_CFGR|=(0 << 3);
 	ADC_CFGR|=(0 << 5);			  //set data alignment to right
-	//clear adc-sqr1-l bits in adc1-sqr1 to select 1 conversion in reg channel
+	ADC->SQR[0] =  //clear adc-sqr1-l bits in adc1-sqr1 to select 1 conversion in reg channel
 	//specify channel number 6 as 1st conversion in reg seq adc1-sqr1
 	//configure channel 6 as single ended adc-difsel
 	//select adc sample time adc1-smpr1
