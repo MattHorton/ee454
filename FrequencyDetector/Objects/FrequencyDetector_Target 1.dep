@@ -1,0 +1,2 @@
+Dependencies for Project 'FrequencyDetector', Target 'Target 1': (DO NOT MODIFY !)
+F (.\main.c)(0x5C7EB1B3)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork --split_sections-I C:\Users\mh409\Documents\ee454\FrequencyDetector\RTE-I C:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.0.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-I C:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="515" -DSTM32L432xx-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
