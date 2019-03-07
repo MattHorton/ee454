@@ -47,3 +47,7 @@ __ i2c1_sendData(char slaveaddress, data, char size) {
 	I2C1_stop();
 	return 0;
 }
+
+
+
+//continued 3/7/19
