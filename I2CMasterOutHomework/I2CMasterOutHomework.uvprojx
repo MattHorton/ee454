@@ -390,7 +390,7 @@
             <File>
               <FileName>horton_stm32l432.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\horton_stm32l432.h</FilePath>
+              <FilePath>.\headerFiles\horton_stm32l432.h</FilePath>
             </File>
           </Files>
         </Group>

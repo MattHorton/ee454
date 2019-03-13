@@ -1,2 +1,5 @@
 Dependencies for Project 'I2CMasterOutHomework', Target 'Target 1': (DO NOT MODIFY !)
-F (.\main.c)(0x5C856D85)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32L432xx-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (.\main.c)(0x5C88E397)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork --split_sections-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="526" -DSTM32L432xx-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+I (../horton_stm32l432.h)(0x5C81FCDC)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x599FBC3E)
+F (.\headerFiles\horton_stm32l432.h)(0x5C88E354)()
