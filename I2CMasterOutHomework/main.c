@@ -1,11 +1,11 @@
-#include "horton_stm32l432"
+#include "horton_stm32l432.h"
 #include<stdint.h>
 #define __IO volatile
 
 //standard mode 100kbit/s
 typedef struct {
-	__IO uint32_t CR;
-	__IO uint32_t ICSCR;
+	__IO uint32_t CR; // control register
+	__IO uint32_t ICSCR; // 
 	__IO uint32_t CFGR;
 	__IO uint32_t PLLCFGR;
 	__IO uint32_t PLLSAI1CFGR;
@@ -37,7 +37,19 @@ typedef struct {
 	__IO uint32_t CCIPR2; // peripherals independent clock configuration register
 }RCC_Typedef;
 
-
+typedef struct {
+	__IO uint32_t CR1; // control register 1
+	__IO uint32_t CR2; // control register 2
+	__IO uint32_t OAR1; // own address 1 register
+	__IO uint32_t OAR2; // own address 2 register
+	__IO uint32_t TIMINGR; // timing register
+	__IO uint32_t TIMEOUTR; // timeout register
+	__IO uint32_t ISR; // interrupt and status register
+	__IO uint32_t ICR; // interrupt clear register
+	__IO uint32_t PECR; // PEC register ? (packet error checking)
+	__IO uint32_t RXDR; // recieve data register
+	__IO uint32_t TXDR; // transmit data register
+}I2C_Typedef;
 #define RCC ((RCC_Typedef *) 0x40021000)
 #define RCC_CCIPR_I2C1SEL 0x00003000 // bits 12 & 13
 #define RCC_CCIPR_I2C1SEL_01 0x00001000 //bit 12
@@ -67,7 +79,3 @@ int main () {
 void I2C_Init(I2C_Typedef* I2Cx) {
 	uint32_t OwnAddr = 0x52;
 }
-
-
-//TODO add i2c typedef
-// add all this to my header file
