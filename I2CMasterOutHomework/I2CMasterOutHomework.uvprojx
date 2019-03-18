@@ -387,11 +387,6 @@
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
             </File>
-            <File>
-              <FileName>horton_stm32l432.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\headerFiles\horton_stm32l432.h</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>
