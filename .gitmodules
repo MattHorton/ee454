@@ -1,3 +1,6 @@
 [submodule "I2CMasterOutHomework/headerFiles"]
 	path = I2CMasterOutHomework/headerFiles
 	url = https://github.com/MattHorton/headerFiles.git
+[submodule "headerFiles"]
+	path = headerFiles
+	url = https://github.com/MattHorton/headerFiles
