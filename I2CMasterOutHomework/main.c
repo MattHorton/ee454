@@ -15,9 +15,23 @@
 #define I2C_CR1_SMBus (unsigned long)(1<<20) //SMBus host address enable
 #define	I2C_CR1_NOSTRETCH (unsigned long)(1<17) //clock stretching disbabled
 #define I2C_TIMINGR_PRESC 0xF0000000 //timing prescaler (bits 31-28)
+#define I2C_OAR1_OA1EN (unsigned long)(1 << 15) // own address 1 enable
+#define I2C_CR2_AUTOEND (unsigned long)(1 << 25) // auto end
+#define I2C_OAR2_OA2EN (unsigned long)(1 << 15) // own address 2 enable
+#define I2C_CR2_ADD10 (unsigned long)(1 << 11) // 0:7-bit addressing mode 1:10-bit addressing mode
+#define I2C_CR2_NACK (unsigned long) (1 << 15) // 0:ACK is sent after current recieved byte 1:NACK is sent after current recieved byte
+	
+
+#define I2C_CR2_SADD (unsigned long)
+#define I2C_CR2_NBYTES (unsigned long)
+#define I2C_CR2_RELOAD (unsigned long)
+#define I2C_CR2_RD_WRN (unsigned long)
+#define I2C_CR2_START (unsigned long)
+#define I2C_CR2_STOP (unsigned long)
 
 void I2C_clock_enable_clock_source();
 void I2C_Init(I2C_Typedef* I2Cx);
+void I2C_Start(I2C_Typedef* I2Cx, uint32_t DevAddress, uint8_t Size, uint8_t Direction);
 
 
 int main () {
@@ -65,4 +79,40 @@ void I2C_Init(I2C_Typedef* I2Cx) {
 	//SysTimer = 80MHz, PRESC = 7, 80MHz/(1+7) = 10MHz
 	I2Cx->TIMINGR &= ~I2C_TIMINGR_PRESC; // clear the prescaler
 	I2Cx->TIMINGR |= 7U << 28; // set clock prescalar to 7
+	I2Cx->TIMINGR |= 49U; // scll : scl low period (master mode) > 4.7us
+	I2Cx->TIMINGR |= 49U << 8; //sclh : scl high period (master mode) > 4.0us
+	I2Cx->TIMINGR |= 14U << 20; // scldel : scl data setup time > 1.0us
+	I2Cx->TIMINGR |= 15U << 16; // sdadel : data hold time > 1.25us
+	
+	// I2C Own address 1 register (I2C_OAR1)
+	I2Cx->OAR1 &= ~I2C_OAR1_OA1EN;;
+	I2Cx->OAR1 |= I2C_OAR1_OA1EN | OwnAddr; //7-bit own address
+	I2Cx->OAR1 &= ~I2C_OAR2_OA2EN; // disable own address 2
+	
+	//I2C cr2 configuration
+	I2Cx->CR2 &= I2C_CR2_ADD10; // 0 7 bit 1 10 bit
+	I2Cx->CR2 |= I2C_CR2_AUTOEND; // enable the auto end
+	I2Cx->CR2 |= I2C_CR2_NACK; // for slave mode : set NACK
+	I2Cx->CR2 |= I2C_CR1_PE; // enable I2C1
+}
+
+void I2C_Start(I2C_Typedef* I2Cx, uint32_t DevAddress, uint8_t Size, uint8_t Direction) {
+	// direction = 0: master requests a write transfer
+	// direction = 1: master requests a read transfer
+	
+	uint32_t tmpreg = I2Cx->CR2;
+	tmpreg &= (uint32_t)~((uint32_t)(I2C_CR2_SADD   | I2C_CR2_NBYTES  |
+																	 I2C_CR2_RELOAD | I2C_CR2_AUTOEND |
+																	 I2C_CR2_RD_WRN | I2C_CR2_START   |
+																	 I2C_CR2_STOP))
+	
+	if (Direction == READ_FROM_SLAVE)
+		tmpreg |= I2C_CR2_RD_WRN; // read from slave
+	else
+		tmpreg &= ~I2C_CR2_RD_WRN; // write to slave
+	
+	tmpreg |= (uint32_t)(((uint32_t) DevAddress  & I2C_CR2_SADD) |
+											(((uint32_t) Size << 16) & I2C_CR2_NBYTES));
+	tmpreg |= I2C_CR2_START;
+	I2Cx->CR2 = tmpreg;
 }
