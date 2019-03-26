@@ -18,9 +18,9 @@
 	
 #define I2C_TIMINGR_PRESC 0xF0000000 //timing prescaler (bits 31-28)
 #define I2C_OAR1_OA1EN (unsigned long)(1 << 15) // own address 1 enable
-#define I2C_CR2_AUTOEND (unsigned long)(1 << 25) // auto end
 #define I2C_OAR2_OA2EN (unsigned long)(1 << 15) // own address 2 enable
-	
+
+#define I2C_CR2_AUTOEND (unsigned long)(1 << 25) // auto end
 #define I2C_CR2_ADD10 (unsigned long)(1 << 11) // 0:7-bit addressing mode 1:10-bit addressing mode
 #define I2C_CR2_NACK (unsigned long) (1 << 15) // 0:ACK is sent after current recieved byte 1:NACK is sent after current recieved byte
 #define I2C_CR2_SADD 0x000003FF // slave address bits
@@ -30,9 +30,9 @@
 #define I2C_CR2_START (unsigned long) (1 << 13) //0:no start gen 1:restart/start gen
 #define I2C_CR2_STOP (unsigned long) (1 << 14) //(master 0:no stop gen 1:stop after transfer)
 
-I2C_ICR_STOPCF
-I2C_ISR_STOPF
-I2C_ISR_BUSY
+#define I2C_ICR_STOPCF (unsigned long) (1 << 5)
+#define I2C_ISR_STOPF (unsigned long) (1 << 5)
+#define I2C_ISR_BUSY (unsigned long) (1 << 15)
 
 void I2C_clock_enable_clock_source();
 void I2C_Init(I2C_Typedef* I2Cx);
@@ -46,7 +46,8 @@ int main () {
 	
 	//standard mode 100kbit/s
 	
-	
+	//6th line in SendData
+	//while((I2Cx->ISR & I2C_ISR_TXIS) == 0) issue with using TXE and TXIS
 	
 	//notes
 	//I2C1 scl PA9  this can be found in data sheet
@@ -110,7 +111,7 @@ void I2C_Start(I2C_Typedef* I2Cx, uint32_t DevAddress, uint8_t Size, uint8_t Dir
 	tmpreg &= (uint32_t)~((uint32_t)(I2C_CR2_SADD   | I2C_CR2_NBYTES  |
 																	 I2C_CR2_RELOAD | I2C_CR2_AUTOEND |
 																	 I2C_CR2_RD_WRN | I2C_CR2_START   |
-																	 I2C_CR2_STOP))
+																	 I2C_CR2_STOP));
 	
 	if (Direction == READ_FROM_SLAVE)
 		tmpreg |= I2C_CR2_RD_WRN; // read from slave
