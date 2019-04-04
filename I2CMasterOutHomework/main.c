@@ -1,57 +1,53 @@
 #include "../headerFiles/horton_stm32l432.h"
 
+#define READ_FROM_SLAVE 1
+#define NULL 0
 
-#define RCC ((RCC_Typedef *) 0x40021000)
+#define I2C_ISR_TXIS (unsigned long) (1 << 1)
+#define I2C_TXDR_TXDATA 0x000000FF
+#define I2C_ISR_TC (unsigned long) (1 << 6)
+#define I2C_ISR_NACKF (unsigned long) (1 << 4)
+#define I2C_ISR_RXNE (unsigned long) (1 << 2)
+#define I2C_RXDR_RXDATA 0x000000FF
 
-//bitmasks (should probably be migrated to header)
-#define RCC_CCIPR_I2C1SEL 0x00003000 // bits 12 & 13
-#define RCC_CCIPR_I2C1SEL_01 0x00001000 //bit 12
-#define RCC_APB1ENR1_I2C1EN (unsigned long)(1<<21)
-#define RCC_APB1RSTR1_I2C1RST (unsigned long)(1<<21)
-	
-#define I2C_CR1_PE (unsigned long)(1<<0) // peripheral enable
-#define I2C_CR1_ANFOFF (unsigned long)(1<<12) //analog noise filter off
-#define I2C_CR1_DNF 0x00000F00 //bits 8-ll digital noise filter
-#define I2C_CR1_ERRIE (unsigned long)(1<<7) // error interrupts enable
-#define I2C_CR1_SMBus (unsigned long)(1<<20) //SMBus host address enable
-#define	I2C_CR1_NOSTRETCH (unsigned long)(1<17) //clock stretching disbabled
-	
-#define I2C_TIMINGR_PRESC 0xF0000000 //timing prescaler (bits 31-28)
-#define I2C_OAR1_OA1EN (unsigned long)(1 << 15) // own address 1 enable
-#define I2C_OAR2_OA2EN (unsigned long)(1 << 15) // own address 2 enable
 
-#define I2C_CR2_AUTOEND (unsigned long)(1 << 25) // auto end
-#define I2C_CR2_ADD10 (unsigned long)(1 << 11) // 0:7-bit addressing mode 1:10-bit addressing mode
-#define I2C_CR2_NACK (unsigned long) (1 << 15) // 0:ACK is sent after current recieved byte 1:NACK is sent after current recieved byte
-#define I2C_CR2_SADD 0x000003FF // slave address bits
-#define I2C_CR2_NBYTES 0x00FF0000 // number of bytes
-#define I2C_CR2_RELOAD (unsigned long) (1 << 24) // 0:transfer is completed after nbytes data transferred 1:transfer not completed
-#define I2C_CR2_RD_WRN (unsigned long) (1 << 10) // transfer direction (master mode) 0:7bit 1:10bit
-#define I2C_CR2_START (unsigned long) (1 << 13) //0:no start gen 1:restart/start gen
-#define I2C_CR2_STOP (unsigned long) (1 << 14) //(master 0:no stop gen 1:stop after transfer)
-
-#define I2C_ICR_STOPCF (unsigned long) (1 << 5)
-#define I2C_ISR_STOPF (unsigned long) (1 << 5)
-#define I2C_ISR_BUSY (unsigned long) (1 << 15)
 
 void I2C_clock_enable_clock_source();
 void I2C_Init(I2C_Typedef* I2Cx);
 void I2C_Start(I2C_Typedef* I2Cx, uint32_t DevAddress, uint8_t Size, uint8_t Direction);
-void I2C_Stop(I2C_Typedef* I2Cx, uint32_t DevAddress, uint8_t Size, uint8_t Direction);
+void I2C_Stop(I2C_Typedef* I2Cx);
 void I2C_WaitLineIdle(I2C_Typedef* I2Cx);
+int8_t I2C_SendData(I2C_Typedef* I2Cx, uint8_t SlaveAddress, uint8_t* pData, uint8_t Size);
+int8_t I2C_RecieveData(I2C_Typedef* I2Cx, uint8_t SlaveAddress, uint8_t* pData, uint8_t Size);
 
 int main () {
-
-	
-	
 	//standard mode 100kbit/s
-	
 	//6th line in SendData
 	//while((I2Cx->ISR & I2C_ISR_TXIS) == 0) issue with using TXE and TXIS
-	
-	//notes
 	//I2C1 scl PA9  this can be found in data sheet
 	//I2C1 sda PA10
+	
+	
+	
+	uint8_t Data_Recieve[6];
+	uint8_t Data_Send[6];
+	unsigned long int SlaveAddress;
+	
+	//System_Clock_Init();
+	I2C_clock_enable_clock_source();
+	
+	//I2C_GPIO_init();
+	//I2C_Initialization(I2C1);
+	
+	while(1) {
+		SlaveAddress = 0x48 << 1; //A0 = 1001000 = 0x48
+		Data_Send[0] = 0x00; // 00 = command to read temperature sensor
+		I2C_SendData(I2C1, SlaveAddress, Data_Send, 1);
+		I2C_RecieveData(I2C1, SlaveAddress, Data_Recieve, 1);
+		for(i = 0; i < 50000; i++); //short software delay
+	}
+	
+	
 	return 0;
 }
 
@@ -124,7 +120,7 @@ void I2C_Start(I2C_Typedef* I2Cx, uint32_t DevAddress, uint8_t Size, uint8_t Dir
 	I2Cx->CR2 = tmpreg;
 }
 
-void I2C_Stop(I2C_Typedef* I2Cx, uint32_t DevAddress, uint8_t Size, uint8_t Direction) {
+void I2C_Stop(I2C_Typedef* I2Cx) {
 	I2Cx->CR2 |= I2C_CR2_STOP;
 	while((I2Cx->ISR & I2C_ISR_STOPF) == 0);
 	I2Cx->ICR |= I2C_ICR_STOPCF;
@@ -132,4 +128,56 @@ void I2C_Stop(I2C_Typedef* I2Cx, uint32_t DevAddress, uint8_t Size, uint8_t Dire
 
 void I2C_WaitLineIdle(I2C_Typedef* I2Cx) {
 	while((I2Cx->ISR & I2C_ISR_BUSY) == I2C_ISR_BUSY);
+}
+
+int8_t I2C_SendData(I2C_Typedef* I2Cx, uint8_t SlaveAddress, uint8_t* pData, uint8_t Size) {
+	int i;
+	if(Size <= 0 || pData == NULL) return -1;
+	//Wait until the line is idle
+	I2C_WaitLineIdle(I2Cx);
+	
+	//the last argument: 0 = sending data to the slave
+	I2C_Start(I2Cx, SlaveAddress, Size, 0);
+	
+	for(i = 0; i < Size; i++) {
+		//TXIS bit is set by hardware when the txdr register is empty and the
+		//data to be transmitted must be written in the TXDR register. It is
+		//cleared when the next data to be sent is written in the TXDR register.
+		//the TXIS flag is not set when a NACK is recieved
+		while( (I2Cx->ISR & I2C_ISR_TXIS) == 0 );
+		
+		//TXIS is cleared by writing to the TXDR register
+		I2Cx->TXDR = pData[i] & I2C_TXDR_TXDATA;
+	}
+	
+	//wait until TC flag is set
+	while((I2Cx->ISR & I2C_ISR_TC) == 0 && (I2Cx->ISR & I2C_ISR_NACKF) == 0 );
+	
+	if( (I2Cx->ISR & I2C_ISR_NACKF) != 0)
+		return -1;
+	
+	I2C_Stop(I2Cx);
+	
+	return 0;
+}
+
+int8_t I2C_RecieveData(I2C_Typedef* I2Cx, uint8_t SlaveAddress, uint8_t* pData, uint8_t Size) {
+	int i;
+	
+	if(Size <= 0 || pData == NULL) return -1;
+	
+	I2C_WaitLineIdle(I2Cx);
+	
+	I2C_Start(I2Cx, SlaveAddress, Size, 1); //1 = recieving from slave
+	
+	for(i = 0; i < Size; i++) {
+		//wait until RXNE flag is set
+		while( (I2Cx->ISR & I2C_ISR_RXNE) == 0);
+		pData[i] = I2Cx->RXDR & I2C_RXDR_RXDATA;
+	}
+	
+	while((I2Cx->ISR & I2C_ISR_TC) == 0); // wait until TCR flag is set
+	
+	I2C_Stop(I2Cx);
+	return 0;
 }
