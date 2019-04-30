@@ -33,36 +33,19 @@ int main() {
 	
 	
 	
+	int target;
+	int current;
+	int error;
+	int pwm;
+	int lastPWM;
+	int kp = 230;
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	target = Result;
+	while(1) {
+		current = Result;
+		error = target - current;
+		pwm = kp*error;
+	}
 	
 	
 	
