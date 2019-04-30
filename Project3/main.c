@@ -1,5 +1,5 @@
-#include "../../headerFiles/horton_stm32l432.h"
-
+//#include "../../headerFiles/horton_stm32l432.h"
+#include "../../headerFiles/stm32l432.h"
 void EXTI_Init(void);
 
 
@@ -7,7 +7,7 @@ int main() {
 	//initialize
 	//  adc
 	//  pwm
-	//  setpoint button PB0
+	//  setpoint button PB0 w/ external interrupt
 	//  I2C ?
 	
 	//enable gpiob in peripheral enable register
@@ -25,7 +25,8 @@ int main() {
 
 void EXTI_Init(void) {
 	//enable the syscfg clock
-	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+	//RCC->APB2ENR |= /*RCC_APB2ENR_SYSCFGEN*/RCC_APB2ENR;
+	RCC->APB2ENR |= 1<<1;
 	
 	//select PA.3	as the trigger source of EXTI 3
 	SYSCFG->EXTICR[0] &= ~SYSCFG_EXTICR1_EXTI3;
@@ -52,4 +53,15 @@ void EXTI_Init(void) {
 	
 	//enable exti 3 interrupt
 	NVIC_EnableIRQ(EXTI3_IRQn);
+}
+
+void EXTI3_IRQHandler(void) {
+	//check for exti 3 interrupt flag
+	if((EXTI->PR1 & EXTI_PR1_PIF3) == EXTI_PR1_PIF3) {
+		//toggle led
+		GPIOB->ODR ^= 1<<8;
+		
+		//clear interrupt pending request
+		EXTI->PR1 |= EXTI_PR1_PIF3; // write a 1 to clear
+	}
 }
