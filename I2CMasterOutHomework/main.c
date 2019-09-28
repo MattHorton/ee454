@@ -10,7 +10,7 @@
 #define I2C_ISR_RXNE (unsigned long) (1 << 2)
 #define I2C_RXDR_RXDATA 0x000000FF
 
-
+#define I2C1 ((I2C_Typedef*) 0x40005400)
 
 void I2C_clock_enable_clock_source();
 void I2C_Init(I2C_Typedef* I2Cx);
@@ -28,7 +28,7 @@ int main () {
 	//I2C1 sda PA10
 	
 	
-	
+	int i;
 	uint8_t Data_Recieve[6];
 	uint8_t Data_Send[6];
 	unsigned long int SlaveAddress;
