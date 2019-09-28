@@ -1,9 +1,57 @@
+//#include "../../headerFiles/horton_stm32l432.h"
 #include "../../headerFiles/stm32l432.h"
-#include<stdint.h>
+void EXTI_Init(void);
+int Result;
 
-void USART_Init(USART_Typedef * USARTx);
+int main() {
+	//initialize
+	//  pa0 pushbutton set target
+	//  adc
+	//  pwm
+	
+	
+	
+	
+	//pushbutton stuff from page 363
+	RCC_AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
+	RCC_AHB2ENR |= RCC_AHB2ENR_GPIOBEN;
+	//set mode of pin 0 as general purpose input
+	GPIOA->MODER &= ~3UL; // set mode as input 00
+	//set IO as no pull up no pull down
+	GPIOA->PUPDR &= ~3UL; // pull up pull down mask
+	GPIOB_MODER |= 0x000000D0; // general purpose output on pb2
+	//pb2 push pull by default
+	//pb2 no pull up pull down by default
+	while(1) {
+		//toggle red led when button PA0 is pushed
+		if((GPIOA->IDR & 0x1) == 0x1) {
+			GPIOB->ODR ^= GPIO_ODR_ODR_2;
+			while((GPIOA->IDR & 0x1) != 0x00); // wait until button is released
+		}
+	}
 
-int main(){
+	
+	
+	
+	int target;
+	int current;
+	int error;
+	int pwm;
+	int lastPWM;
+	int kp = 230;
+	
+	target = Result;
+	while(1) {
+		current = Result;
+		error = target - current;
+		pwm = kp*error;
+	}
+	
+	
+	
+	
+	
+	
 	//adc stuff
 	RCC_AHB2ENR |= (1 << 0); //Bit 0 is GPIOA clock enable bit
 	//gpio a 0 and 1 MODE are already initialized to analog
@@ -57,29 +105,32 @@ int main(){
 	//clear polarity bit to 0 cc1np in tim1-ccmr1
 	//tim1-ccr1 = 500 duty cycle of oc1n = 50%
 	//enable the counter of channel 1 cen bit in tim1-cr1
-
-
-
-
-
-
-	int i;
-	RCC_AHB2ENR |= (1 << 1); //Bit 1 is GPIOB clock enable bit
-	GPIOB_MODER &= ~(3<<(2*3)); //clear PB3
-	GPIOB_MODER |= 1<<(2*3); //PB3 output
-	while(1) {
-		GPIOB_BSRR |= LED_ON; //Turn on LED
-		for(i=0; i<1000000; i++);
-		GPIOB_BSRR |= LED_OFF; //Turn off LED
-		for(i=0; i<1000000; i++);
-		//for loop of 2000 is 20ms*
-	}
+	
+	
+	
+	return 0;
 }
 
 
 
 
-void USART_Init(USART_Typedef * USARTx) {
-	USARTx->CR[0] = 0x00000000; //set ue (usart enable to 0)
-	//USARTx->CR[0] = 
+void ADC1_Wakeup(void) {
+	int wait_time;
+	ADC1_CR &= ~ADC_CR_DEEPPWD; //turn deep pwd off (bit 29)
+	ADC1_CR |= ADC_CR_DEEPPWD; // turn deep pwd on
+	if((ADC1_CR & (unsigned long)(1 << 29)) == (unsigned long)(1 << 29)) {
+		ADC1_CR &= ~ADC_CR_DEEPPWD;
+	}
+	
+	ADC1_CR |= ADC_CR_ADVREGEN; // enable adc internal voltage regulator
+	wait_time = 20 * (80000000 / 1000000);
+	while(wait_time != 0) {
+		wait_time--;
+	}
+}
+
+void ADC1_2_IRQHandler(void) {
+		if((ADC1_ISR & ADC_ISR_EOC) == ADC_ISR_EOC) {
+			Result = ADC1_DR;
+		}
 }
